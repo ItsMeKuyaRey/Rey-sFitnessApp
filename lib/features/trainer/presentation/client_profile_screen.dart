@@ -4,7 +4,6 @@
 
 import 'package:fitnessapp/features/trainer/presentation/trainer_messages_screen.dart';
 import 'package:flutter/material.dart';
-
 import 'create_workout_screen.dart';
 
 class ClientProfileScreen extends StatefulWidget {

@@ -1,6 +1,5 @@
 // lib/features/trainer/presentation/program_viewer_screen.dart
 // 🔥 FIXED "No element" ERROR + USES planMap DIRECTLY
-import 'dart:io';
 import 'package:flutter/material.dart';
 
 class Day {
