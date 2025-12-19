@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Users own their profile in /users collection
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // 2. Trainers own their entire trainer doc + subcollections
+    match /trainers/{trainerId} {
+      allow read, write: if request.auth != null && request.auth.uid == trainerId;
+
+      // Workout templates
+      match /workout_templates/{templateId} {
+        allow read, write: if request.auth != null && request.auth.uid == trainerId;
+      }
+
+      // Programs
+      match /programs/{programId} {
+        allow read, write: if request.auth != null && request.auth.uid == trainerId;
+      }
+
+      // Program covers (if stored in subcollection)
+      match /program_covers/{coverId} {
+        allow read, write: if request.auth != null && request.auth.uid == trainerId;
+      }
+    }
+
+    // 3. Clients own their data
+    match /clients/{clientId} {
+      allow read, write: if request.auth != null && request.auth.uid == clientId;
+      
+      // Client can read their assigned programs (from trainer)
+      match /assigned_programs/{programId} {
+        allow read: if request.auth != null && request.auth.uid == clientId;
+        allow write: if false;
+      }
+    }
+
+    // 4. Admin has GOD MODE
+    match /{document=**} {
+      allow read, write: if request.auth != null 
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    // 5. Default: All logged-in users can READ everything (programs, templates, etc.)
+    match /{document=**} {
+      allow read: if request.auth != null;
+      allow write: if false;  // Only explicit rules allow write
+    }
+  }
+}
