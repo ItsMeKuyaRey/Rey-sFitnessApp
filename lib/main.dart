@@ -1,11 +1,12 @@
 // lib/main.dart
-// FINAL — WORKS FOR ADMIN + TRAINER + CLIENT — INSTANT — WITH ROUTE OBSERVER + APP CHECK DEBUG
+// FINAL — WORKS FOR ADMIN + TRAINER + CLIENT — ROUTE OBSERVER + APP CHECK DEBUG + .env SAFE
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_app_check/firebase_app_check.dart'; // ✅ ADDED
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; // ✅ Load .env
 
 import 'core/localization/app_localizations.dart';
 import 'core/localization/language_provider.dart';
@@ -17,14 +18,17 @@ import 'firebase_options.dart';
 /// GLOBAL ROUTE OBSERVER FOR SCREEN RELOADS
 final RouteObserver<ModalRoute> routeObserver = RouteObserver<ModalRoute>();
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load .env file
+  await dotenv.load();
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  /// 🔥 APP CHECK — DEBUG MODE (NO BILLING, SIMULATOR SAFE)
+  // 🔥 APP CHECK — DEBUG MODE
   await FirebaseAppCheck.instance.activate(
     appleProvider: AppleProvider.debug,
   );
@@ -187,15 +191,15 @@ class _SplashScreenState extends State<SplashScreen>
                   children: List.generate(3, (index) {
                     final delay = 0.1 + (index * 0.2);
                     final pulseValue =
-                    (_controller.value - delay).clamp(0.0, 1.0);
+                        (_controller.value - delay).clamp(0.0, 1.0);
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 500),
                       width: 12,
                       height: 12,
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white
-                            .withAlpha((pulseValue * 255).round()),
+                        color:
+                            Colors.white.withAlpha((pulseValue * 255).round()),
                         shape: BoxShape.circle,
                       ),
                     );
